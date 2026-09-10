@@ -329,6 +329,11 @@
     white-space:nowrap; z-index:1;
   }
   .ms-line{position:absolute; left:0.75rem; right:0.75rem; top:50%; height:2px; background:var(--neutral-pill); z-index:1;}
+  .ms-tick{position:absolute; bottom:0; width:1px; height:8px; background:var(--border); z-index:1;}
+  .ms-tick-label{
+    position:absolute; bottom:9px; transform:translateX(-50%);
+    font-size:0.6rem; color:var(--muted); white-space:nowrap; z-index:1;
+  }
   .ms-today{position:absolute; top:36px; bottom:36px; width:2px; background:var(--accent); z-index:2;}
   .ms-today-label{
     position:absolute; top:-1.1rem; transform:translateX(-50%);
@@ -911,11 +916,11 @@ const seedData = [
   {id:"O2", workstream:"Org Design", initiative:"Publish new org alignment summary to all impacted stakeholders", priority:null, status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Draft complete. Pending final org model decision (Item O1)."},
   {id:"O3", workstream:"Org Design", initiative:"Define and document role responsibilities across all towers", priority:"High", status:"In Progress", owner:"John H.", target:"Sep 12", target_date:"2026-09-12", approx:false, notes:"Covers Data Product, App, Platform, and Analytics towers. Required input for JD updates and coaching plans."},
   {id:"O4", workstream:"Org Design", initiative:"Transition single-application ownership to product teams", priority:"High", status:"Planning", owner:"Marta / Jon M.", target:"Sep 20", target_date:"2026-09-20", approx:false, notes:"Reduces scope overlap and frees the data platform team to focus on platform-layer priorities."},
-  {id:"O5", workstream:"Org Design", initiative:"Develop operating model design and documentation", priority:"High", status:"In Progress", owner:"John H.", target:"Sep 15", target_date:"2026-09-15", approx:false, notes:"Coordinate with Marta, Richard, Dan, Venu. Tied to org model finalization."},
+  {id:"O5", workstream:"Org Design", initiative:"Develop operating model design and documentation", priority:"High", status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Operating model discussions wrapped with Marta, Richard, Dan, Venu."},
   {id:"O6", workstream:"Org Design", initiative:"Finalize and complete org design for Product team", priority:"High", status:"Complete", owner:"John H.", target:"Sep 3", target_date:"2026-09-03", approx:false, notes:"Structure and roles finalized for the Product team."},
 
   {id:"P1", workstream:"People", initiative:"General BOE D&A onboarding for Local Team", priority:null, status:"Complete", owner:"John H.", target:"Aug 17", target_date:"2026-08-17", approx:false, notes:"Explicitly requested by Jon. High-level training on existing BOE D&A processes, covering product, sales, and delivery."},
-  {id:"P2", workstream:"People", initiative:"Onboarding and training plan for Marta", priority:"High", status:"Planning", owner:"John H.", target:"Sep 6", target_date:"2026-09-06", approx:false, notes:"Explicitly requested by Jon. Covers platform architecture, team cadence, OKRs, and product roadmap orientation."},
+  {id:"P2", workstream:"People", initiative:"Onboarding and training plan for Marta", priority:"High", status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Explicitly requested by Jon. Covers platform architecture, team cadence, OKRs, and product roadmap orientation."},
   {id:"P3", workstream:"People", initiative:"Facilitate Marta's in-person Dallas team engagement", priority:"High", status:"Planning", owner:"John H. / Jon M.", target:"Oct", target_date:"2026-10-15", approx:true, notes:"In-person session with the technical team — Daniel (Dallas), Dan (Houston), Richard, and Doug."},
   {id:"P4", workstream:"People", initiative:"Support title and promotion review for impacted team members", priority:"Medium", status:"In Progress", owner:"John H.", target:"Sep 30", target_date:"2026-09-30", approx:false, notes:"Mid-year changes require additional documentation. Justification drafted; coordinating with the People team."},
   {id:"P5", workstream:"People", initiative:"Finalize updated JDs for roles in new org model", priority:"Medium", status:"Planning", owner:"John H. / Jon M.", target:"Oct", target_date:"2026-10-15", approx:true, notes:"JDs being pulled from the People team; role-specific input to follow for each position."},
@@ -929,9 +934,11 @@ const seedData = [
   {id:"PR1", workstream:"Product", initiative:"Coach Marta in developing the data platform product roadmap", priority:"High", status:"Planning", owner:"Marta / John H.", target:"Oct", target_date:"2026-10-15", approx:true, notes:"Marta and Richard own the roadmap documentation, with coaching and review support from John H."},
   {id:"PR2", workstream:"Product", initiative:"Document Vantage feature workflow and align with product teams", priority:"Medium", status:"In Progress", owner:"John H.", target:"Sep 20", target_date:"2026-09-20", approx:false, progress:50, notes:"Tie to scrum team structure and application ownership transition (Item O4)."},
   {id:"PR3", workstream:"Product", initiative:"Finalize and publish 2026–2027 integration roadmap", priority:"Medium", status:"In Progress", owner:"John H.", target:"Sep 30", target_date:"2026-09-30", approx:false, notes:"Align milestones with finalized org model and OKR targets before distributing to leadership."},
+  {id:"PR4", workstream:"Product", initiative:"Draft non-technical product launch release checklist", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 8", target_date:"2026-09-08", approx:false, notes:"Covers collateral, training, and FAQs for go-live readiness."},
+  {id:"PR5", workstream:"Product", initiative:"Finalize release checklist for large releases", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Covers coordination and readiness steps for larger, higher-risk releases."},
 
   {id:"G1", workstream:"Governance", initiative:"Align Marta's Talent Coach OKRs with new role responsibilities", priority:"High", status:"Not Started", owner:"Jon M. / John H.", target:"Sep 12", target_date:"2026-09-12", approx:false, notes:"Reviewing existing OKRs and refreshing the coaching framework to match the new role."},
-  {id:"G2", workstream:"Governance", initiative:"Establish bi-weekly transformation status review with Jon", priority:"Medium", status:"Not Started", owner:"John H.", target:"Sep 5", target_date:"2026-09-05", approx:false, notes:"Proposed cadence: 30-min bi-weekly to review list, triage ad-hoc inserts, and agree on re-prioritization."},
+  {id:"G2", workstream:"Governance", initiative:"Build and host a live transformation tracker for status visibility", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Replaces the proposed bi-weekly status review with Jon. Single source of truth for status, milestones, and progress across all workstreams, hosted for the team and leadership to check anytime instead of a recurring meeting."},
   {id:"G3", workstream:"Governance", initiative:"Update OKRs with latest changes to goals around outcomes", priority:"High", status:"In Progress", owner:"", target:"", target_date:null, approx:false, progress:50, notes:""},
   {id:"G4", workstream:"Governance", initiative:"Ensure BOE SLT charter maps to active transformation workstreams", priority:"Low", status:"Planning", owner:"John H.", target:"Oct 1", target_date:"2026-10-01", approx:false, notes:"Charter updated July 2026. Verify all transformation tracks are represented in charter language."},
   {id:"G5", workstream:"Governance", initiative:"Draft data literacy survey for BOE business users", priority:"Medium", status:"Complete", owner:"John H.", target:"Aug 31", target_date:"2026-08-31", approx:false, notes:"Baseline assessment of data literacy across BOE."},
@@ -1033,6 +1040,19 @@ function buildMilestoneStripHtml(today, attentionItems, winsItems){
   }
 
   html += `<div class="ms-line"></div>`;
+
+  // Weekly date ticks along the line — the month bands alone only said "Aug" or
+  // "Sep"; these give an actual day so you can place a milestone within the month.
+  let tCursor = new Date(min);
+  while(tCursor <= max){
+    const p = pct(tCursor);
+    if(p > 1 && p < 99){
+      html += `<div class="ms-tick" style="left:${p}%;"></div>`;
+      html += `<div class="ms-tick-label" style="left:${p}%;">${tCursor.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</div>`;
+    }
+    tCursor.setDate(tCursor.getDate() + 7);
+  }
+
   html += `<div class="ms-today" style="left:${todayPct}%"><div class="ms-today-label">Today</div></div>`;
 
   picked.forEach((item,idx)=>{
@@ -1625,16 +1645,9 @@ function buildEmailDraft(){
     html += emailSection("Coming up (next 2 weeks)", "#435254", "#eef1f1", grid);
   }
 
-  html += `<p>Full tracker: [paste link here]</p>`;
-  html += `
-    <div style="height:8px;"></div>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-top:2px solid #003f2d;">
-      <tr><td style="padding-top:12px;">
-        <div style="font-size:13px;color:#0c211d;">Thanks,</div>
-        <div style="font-weight:700;color:#003f2d;font-family:Georgia,'Times New Roman',serif;font-size:14px;margin-top:6px;">John Hernandez</div>
-        <div style="font-size:12px;color:#7f8480;">Transformation Lead, BOE Data &amp; Analytics · CBRE</div>
-      </td></tr>
-    </table>`;
+  html += `<p>Full tracker: <a href="https://cbre-vantage-studio.github.io/Tranformation/" style="color:#003f2d;">https://cbre-vantage-studio.github.io/Tranformation/</a></p>`;
+  // No sign-off block here on purpose — this gets pasted into an email that
+  // already has a signature underneath it.
 
   const subject = `BOE D&A Transformation Tracker — Update ${dateStr}`;
   return {subject, html};
