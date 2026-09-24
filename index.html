@@ -1124,32 +1124,38 @@ function renderExecSummary(){
     .sort((a,b)=> new Date(b.target_date||0) - new Date(a.target_date||0))
     .slice(0,5);
 
+  // Soonest upcoming (not-yet-due) deadlines — computed regardless of whether
+  // anything is overdue, so the milestone graph always has items on both sides
+  // of "Today" instead of stalling once everything on it has slipped into the past.
+  const upcoming = items
+    .filter(i=>i.status!=="Complete" && i.target_date && daysBetween(new Date(i.target_date), today) <= 0)
+    .sort((a,b)=> new Date(a.target_date)-new Date(b.target_date))
+    .slice(0,5);
+
   let attnRows;
-  let attnItemsForGraph = attention;
   if(attention.length){
     attnRows = attention.map(i=>{
       const overdue = i.status==="Blocked" || (i.target_date && daysBetween(new Date(i.target_date), today) > 0);
       const when = i.status==="Blocked" ? "Blocked" : (i.target_date ? `${daysBetween(new Date(i.target_date),today)}d past due` : "No date");
       return `<div class="exec-row"><span class="what">${execNumBadge(i)}${escapeHtml(i.initiative)}</span><span class="when${overdue?" overdue":""}">${escapeHtml(when)}</span></div>`;
     }).join("");
+  } else if(upcoming.length){
+    attnRows = `<div class="exec-empty" style="padding-bottom:0.5rem;">Nothing overdue or blocked — closest deadlines:</div>` +
+      upcoming.map(i=>{
+        const d = daysBetween(today, new Date(i.target_date));
+        const when = d===0 ? "Due today" : `Due in ${d}d`;
+        return `<div class="exec-row"><span class="what">${execNumBadge(i)}${escapeHtml(i.initiative)}</span><span class="when">${escapeHtml(when)}</span></div>`;
+      }).join("");
   } else {
-    // Nothing overdue or blocked — show the soonest upcoming deadlines instead of an empty panel.
-    const upcoming = items
-      .filter(i=>i.status!=="Complete" && i.target_date && daysBetween(new Date(i.target_date), today) <= 0)
-      .sort((a,b)=> new Date(a.target_date)-new Date(b.target_date))
-      .slice(0,5);
-    attnItemsForGraph = upcoming;
-    if(upcoming.length){
-      attnRows = `<div class="exec-empty" style="padding-bottom:0.5rem;">Nothing overdue or blocked — closest deadlines:</div>` +
-        upcoming.map(i=>{
-          const d = daysBetween(today, new Date(i.target_date));
-          const when = d===0 ? "Due today" : `Due in ${d}d`;
-          return `<div class="exec-row"><span class="what">${execNumBadge(i)}${escapeHtml(i.initiative)}</span><span class="when">${escapeHtml(when)}</span></div>`;
-        }).join("");
-    } else {
-      attnRows = `<div class="exec-empty">Nothing overdue, blocked, or dated yet — nice work.</div>`;
-    }
+    attnRows = `<div class="exec-empty">Nothing overdue, blocked, or dated yet — nice work.</div>`;
   }
+
+  // The graph itself always mixes overdue/blocked items with the soonest upcoming
+  // ones (deduped by id) so milestones land on both sides of "Today".
+  const graphMap = new Map();
+  attention.forEach(i=>graphMap.set(i.id,i));
+  upcoming.forEach(i=>graphMap.set(i.id,i));
+  const attnItemsForGraph = Array.from(graphMap.values());
 
   const winsRows = wins.length ? wins.map(i=>{
     return `<div class="exec-row"><span class="what">${execNumBadge(i)}${escapeHtml(i.initiative)}</span><span class="when">${i.target ? escapeHtml(i.target) : "—"}</span></div>`;
