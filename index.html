@@ -911,6 +911,13 @@ document.documentElement.setAttribute("data-theme", "light");
 
 const STORAGE_KEY = "transformation-tracker-v2";
 
+// Bump DATA_VERSION on every publish. Any saved browser state from an older
+// version is discarded on load, so a viewer with a stale cached copy always
+// picks up newly added items, revised dates, and status changes instead of
+// silently rendering last month's data.
+const DATA_VERSION = "2026-09-22";
+const LAST_UPDATED = "Sep 24, 2026";
+
 const seedData = [
   {id:"O1", workstream:"Org Design", initiative:"Finalize team restructure model and communicate to team", priority:null, status:"Complete", owner:"John H.", target:"Sep 5", target_date:"2026-09-05", approx:false, notes:"Operating model"},
   {id:"O2", workstream:"Org Design", initiative:"Publish new org alignment summary to all impacted stakeholders", priority:null, status:"Complete", owner:"John H.", target:"Sep 10", target_date:"2026-09-10", approx:false, notes:"Draft complete. Pending final org model decision (Item O1)."},
@@ -929,7 +936,7 @@ const seedData = [
   {id:"P7", workstream:"People", initiative:"Train entire BOE D&A group on new org model", priority:null, status:"Complete", owner:"John H.", target:"Aug 25", target_date:"2026-08-25", approx:false, notes:""},
   {id:"P8", workstream:"People", initiative:"Complete 1:1 conversations with team members not changing managers", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 14", target_date:"2026-09-14", approx:false, notes:"Confirm continuity and address questions for team members whose reporting line is unchanged in the new org model."},
   {id:"P9", workstream:"People", initiative:"Deliver Jira training to the team", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 18", target_date:"2026-09-18", approx:false, notes:"Part of the broader training series alongside Agile and operating model training."},
-  {id:"P10", workstream:"People", initiative:"Deliver Agile training to the team", priority:"Medium", status:"Planning", owner:"John H.", target:"Sep 23", target_date:"2026-09-23", approx:false, notes:"Scheduled. Part of the broader training series alongside Jira and operating model training."},
+  {id:"P10", workstream:"People", initiative:"Deliver Agile training to the team", priority:"Medium", status:"Complete", owner:"John H.", target:"Sep 23", target_date:"2026-09-23", approx:false, notes:"Delivered. Part of the broader training series alongside Jira and operating model training."},
   {id:"P11", workstream:"People", initiative:"Schedule and deliver operating model training to the team", priority:"Medium", status:"Not Started", owner:"John H.", target:"", target_date:null, approx:false, notes:"Not yet scheduled. Part of the broader training series alongside Jira and Agile training."},
 
   {id:"I1", workstream:"Integration", initiative:"Complete BOE D&A team integration: structure and reporting lines", priority:"High", status:"Complete", owner:"John H.", target:"Sep 15", target_date:"2026-09-15", approx:false, notes:"Integration and org chart finalized. Reporting line decisions confirmed with Jon."},
@@ -959,19 +966,29 @@ function loadData(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if(raw){
       const saved = JSON.parse(raw);
-      if(Array.isArray(saved.items) && saved.items.length){
-        const byId = {};
-        seedData.forEach(s=>byId[s.id]=s);
-        saved.items = saved.items.map(it=> byId[it.id] ? Object.assign({}, byId[it.id], it) : it);
-        return saved;
+      // Only trust saved state from this published version. Anything older is
+      // stale by definition — the file it was saved against has since changed.
+      if(saved.version === DATA_VERSION && Array.isArray(saved.items) && saved.items.length){
+        const savedStatus = {};
+        saved.items.forEach(it=>{ if(it && it.id) savedStatus[it.id] = it.status; });
+        // Always build from seedData so newly published items appear and
+        // revised dates, notes, and owners win. Only the status a viewer
+        // changed in their own browser is carried over.
+        const items = seedData.map(s=>{
+          const copy = Object.assign({}, s);
+          if(savedStatus[s.id]) copy.status = savedStatus[s.id];
+          return copy;
+        });
+        return {items, savedAt: saved.savedAt || null, version: DATA_VERSION};
       }
     }
   }catch(e){}
-  return {items: JSON.parse(JSON.stringify(seedData)), savedAt: null};
+  return {items: JSON.parse(JSON.stringify(seedData)), savedAt: null, version: DATA_VERSION};
 }
 function saveData(state){
   try{
     state.savedAt = new Date().toISOString();
+    state.version = DATA_VERSION;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }catch(e){}
 }
@@ -1183,9 +1200,9 @@ function updatedLabel(){
   const el = document.getElementById("lastUpdated");
   if(state.savedAt){
     const dt = new Date(state.savedAt);
-    el.textContent = dt.toLocaleDateString("en-US",{month:"short",day:"numeric"}) + " (edited)";
+    el.textContent = LAST_UPDATED + " · your edits " + dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
   } else {
-    el.textContent = "Aug 2026";
+    el.textContent = LAST_UPDATED;
   }
 }
 
